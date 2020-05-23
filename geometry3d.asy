@@ -4,6 +4,9 @@ import solids;
 
 import geometry;
 
+filltype dotfilltype = Fill;
+
+
 real length3(triple A, triple B=O) {
     return sqrt((A.x - B.x)^2 + (A.y - B.y)^2 + (A.z - B.z)^2);
 }
@@ -17,6 +20,8 @@ triple[] get_basis(projection P = currentprojection) {
     
     return basis;
 }
+
+
 
 //pair project3(triple A, projection P = currentprojection) {
 pair project3(triple A) {
@@ -37,19 +42,140 @@ pair project3(triple A) {
     return (Ap[0], Ap[1]);    
 } 
 
+path project3(path3 p) {
+    return path(p, project3);
+}
+
+//copied from https://tex.stackexchange.com/questions/321674/how-to-make-empty-point-in-asymptote which is copied from three_surface.asy
+void opendot(picture pic=currentpicture, triple v, material p=currentpen,
+         light light=nolight, string name="", render render=defaultrender)
+{
+  pen q=(pen) p;
+  pen fillpen = light.background;
+  if (invisible(fillpen)) fillpen = currentlight.background;
+  if (invisible(fillpen)) fillpen = white;
+  real size=0.5*linewidth(dotsize(q)+q);
+  pic.add(new void(frame f, transform3 t, picture pic, projection P) {
+      triple V=t*v;
+      assert(!is3D(), "opendot() not supported unless settings.prc == false and settings.render != 0");
+      if(pic != null)
+        dot(pic,project(V,P.t),filltype=FillDraw(fillpen=fillpen, drawpen=q));
+    },true);
+  triple R=size*(1,1,1);
+  pic.addBox(v,v,-R,R);
+}
+
+void opendot(picture pic=currentpicture, Label L, triple v, align align=NoAlign,
+             string format=defaultformat, material p=currentpen,
+             light light=nolight, string name="", render render=defaultrender)
+{
+  Label L=L.copy();
+  if(L.s == "") {
+    if(format == "") format=defaultformat;
+    L.s="("+format(format,v.x)+","+format(format,v.y)+","+
+      format(format,v.z)+")";
+  }
+  L.align(align,E);
+  L.p((pen) p);
+  opendot(pic,v,p,light,name,render);
+  label(pic,L,v,render);
+}
+//
+
+void markangle3(picture pic = currentpicture,
+               Label L = "", int n = 1, real radius = 0, real space = 0,
+               explicit triple A, explicit triple B, explicit triple C,
+                 pair align = dir(1),
+               arrowbar3 arrow3 = None, pen p = currentpen,
+               filltype filltype_ = NoFill,
+               margin margin = NoMargin, marker marker = nomarker) {
+    path3 w = Circle(B,radius, normal(A--B--C));
+    triple P = intersectionpoint(w,B--A); //line3 BA
+    triple Q = intersectionpoint(w,B--C); //line3 BC
+    path3 arc = Arc(B,P,Q);
+    path3 g = B--P--arc--B--cycle;
+    draw(pic, L, arc, p, arrow=arrow3);
+    fill(project3(g), filltype_.fillpen);
+}
+/*
+void markangle3(picture pic = currentpicture,
+               Label L = "", int n = 1, real radius = 0, real space = 0,
+               explicit line3 l1, explicit line3 l2, explicit pair align = dir(1),
+               arrowbar arrow = None, pen p = currentpen,
+               filltype filltype = NoFill,
+               margin margin = NoMargin, marker marker = nomarker) {}
+
+*/
+/*
+triple project2(pair A, path3 p) {
+    projection P = currentprojection;
+    triple[] basis = get_basis(P);
+    triple Xp = basis[0];
+    triple Yp = basis[1];
+    triple Zp = basis[2];
+
+    real[][] transform_matrix = {{Xp.x, Yp.x, Zp.x},
+                                 {Xp.y, Yp.y, Zp.y},
+                                 {Xp.z, Yp.z, Zp.z}
+                                };
+    real[] A_matrix = {A.x, A.y, 0};
+    
+    real[] Ap = solve(transform_matrix, A_matrix);
+    
+    return (Ap[0], Ap[1]);
+
+}
+*/
+
+/*
+don not need to uncomment
+
+void dot3(picture pic=currentpicture, Label L, triple A, align align=NoAlign,
+         string format=defaultformat, pen p=currentpen, filltype filltype) {
+
+    dot(pic,L,project3(A),align,format,p,filltype);
+}
+
+void draw3(picture pic=currentpicture, Label L="", path3 g, 
+          align align=NoAlign, pen p=currentpen) {
+
+    draw(pic,L,project3(g),align,p);
+
+}
+
+void draw3(picture pic=currentpicture, Label L="", guide3 g, 
+          align align=NoAlign, pen p=currentpen) {
+
+    draw(pic,L,project3(g),align,p);
+
+}
+
+void draw3(picture pic=currentpicture, Label L="", path3[] G, 
+          align align=NoAlign, pen p=currentpen) {
+
+    for(path3 g:G) {
+        draw3(pic,L,g,align,p);
+    }
+}
+*/
+
+
+
 /*
 path3 circle3(triple A, triple B, triple C) {
     return 
 }
 */
-path project3(path3 p) {
-    return path(p, project3);
-}
-
 
 bool collinear3(triple A, triple B) {
     return dot(A,B) == 0;
 }
+
+
+path3 Circle(triple C, triple A, triple normal=Z){
+    return Circle(C,length3(C,A),normal);
+}
+
 
 
 struct line3 {
