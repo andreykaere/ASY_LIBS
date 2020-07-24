@@ -7,6 +7,8 @@ import geometry;
 filltype dotfilltype = Fill;
 
 
+
+
 real length3(triple A, triple B=O) {
     return sqrt((A.x - B.x)^2 + (A.y - B.y)^2 + (A.z - B.z)^2);
 }
@@ -336,9 +338,16 @@ void Drawline(picture pic = currentpicture, Label L = "", pair P, bool dirP = tr
 }
 
 
-void draw(picture pic=currentpicture, line3 a, bool dirA=true, bool dirB=true, bool inf=true, pen p=currentpen) {
+void draw(picture pic=currentpicture, line3 a, bool dirA=true, 
+            bool dirB=true, bool inf=true, pen p=currentpen) {
     
-    if (inf) Drawline(project3(a.A),dirA,project3(a.B),dirB,p);	
+
+    if (inf) {
+        Drawline(project3(a.A),dirA,project3(a.B),dirB,p);
+    }	
+    else {
+        draw(a.A--a.B,p);    
+    }
 }
   /*  
   pic.add(new void (frame f, transform t, transform T, pair m, pair M) {
@@ -619,11 +628,18 @@ foot of  point ... on plane/line
 
 
 
-void exitfunction() {
-	picture pic1;
-	draw(pic1,box(bbox()));
+void add_2d_frame() {
+    picture pic1;
+	draw(pic1,box(bbox()), invisible);
 
 	add(pic1.fit());
+}
+
+
+
+void with_geometry3d(void main()) {
+    main();
+    add_2d_frame();
 }
 
 
