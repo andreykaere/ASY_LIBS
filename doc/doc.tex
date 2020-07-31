@@ -1,0 +1,65 @@
+\documentclass[12pt]{extarticle}
+
+%\usepackage{tgtermes}
+
+\usepackage{amsthm}
+\usepackage{thmtools}
+\usepackage[T1]{fontenc}
+
+\newenvironment{codeleft} 
+    {\begin{flushleft}\fontfamily{qcs}\fontsize{11}{11}\selectfont}
+    {\end{flushleft}\par\noindent}
+
+\newenvironment{codecenter} 
+    {\begin{center}\fontfamily{put}\selectfont}
+    {
+    \end{center} \\
+    }
+
+
+\def\inlinecode#1
+    {{\fontfamily{qcs}\fontsize{11}{11}\selectfont #1}}
+
+
+\def\commentcode#1#2
+    {\inlinecode{#1}\\ \qquad #2}
+
+
+\begin{document}
+
+\tableofcontents
+\newpage
+
+\section{Introduction}
+
+Before using this package, make sure, that you have this settings:\\
+\begin{codeleft}
+	settings.outformat = "pdf";\\
+	settings.render = 0;\\
+	settings.prc = false;\\
+\end{codeleft}
+and specified size of picture by \inlinecode{size3}.
+
+\subsection{Objects types list}
+
+The package \textit{geometry3d.asy} is the extension of the module 
+\textit{geometry.asy}. Basically, this package provides you a tools 
+to creare a really nice 3D pictures in solid geometry. 
+
+Here is all types, defined in this module\\
+\inlinecode{ray3} -- a 3D ray \\
+\inlinecode{vector3} -- a 3D vector \\
+\inlinecode{line3} -- a 3D line \\
+\inlinecode{plane3} -- a plane \\
+\inlinecode{sphere3} -- a sphere \\
+%\textbf{}
+
+
+\section{The type "line3"}
+
+\commentcode{void drawline(picture pic=currentpicture, pair P, pair Q, pen p=currentpen);}{
+draw the visible portion of the (infinite) line going through P and Q, without
+altering the size of picture pic, using pen p.}
+
+
+\end{document}

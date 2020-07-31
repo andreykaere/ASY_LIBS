@@ -13,6 +13,10 @@ real length3(triple A, triple B=O) {
     return sqrt((A.x - B.x)^2 + (A.y - B.y)^2 + (A.z - B.z)^2);
 }
 
+triple midpoint3(triple A, triple B) {
+    return (A+B)/2;
+}
+
 
 triple[] get_basis(projection P = currentprojection) {
 	triple Zp = unit(P.camera);
@@ -169,13 +173,50 @@ path3 circle3(triple A, triple B, triple C) {
 }
 */
 
-bool collinear3(triple A, triple B) {
-    return dot(A,B) == 0;
+
+
+
+
+bool collinear3(triple A, triple B, triple C) {
+    return dot(C-A,C-B) == 0;
 }
 
 
 path3 Circle(triple C, triple A, triple normal=Z){
     return Circle(C,length3(C,A),normal);
+}
+
+
+struct vector3 {
+    real x,y,z;
+    
+    void operator init(triple V) {
+        this.x = V.x;
+        this.y = V.y;
+        this.z = V.z;
+    }   
+    
+    void operator init(triple A, triple B) {
+        this.operator init(B-A);
+    }   
+
+}
+
+vector3 operator *(vector3 v, real k) {
+    return vector3((k*v.x, k*v.y,k*v.z));
+}
+
+triple operator +(triple A, vector3 v) {
+    return A + (v.x,v.y,v.z);
+}
+
+triple operator -(triple A, vector3 v) {
+    return A - (v.x,v.y,v.z);
+}
+
+struct curve {
+    path[] front;
+    path[] back;
 }
 
 
@@ -186,24 +227,24 @@ struct line3 {
     triple extendA, extendB;
 	path3 line;
 	path3 line_extended;
-    triple vec;
+    vector3 vec;
+	curve curve;   
 
-	triple[] inits = {A,B};   
-
-    void operator init(triple A, triple B, real k=1.3) {
-        this.vec = B-A; //vector AB
+    void operator init(triple A, triple B, real k=1000) {
+        this.vec = vector3(A,B); //vector AB
         this.A = A;
         this.B = B;
-        this.extendB = B+vec*k;
-        this.extendA = A-vec*k;
+        this.extendB = B + vec * k;
+        this.extendA = A - vec * k;
         this.line_extended = extendA--extendB;    
         this.line = A--B;
     }
     
+    void operator init(vector3 v, triple A) {
+        this.operator init(A, A+v);
+    } 
+   
     //replace with operator
-    bool on_line (triple P) {
-        return collinear3(P-A, P-B);
-    }
     /*
     line3 xline3 (real x) {
         line3 l;    
@@ -214,9 +255,44 @@ struct line3 {
 
 }
 
+line3 parallel(line3 a, triple A) {
+    return line3(a.vec, A);
+}
+
+
+
+triple[] intersectionpoints(line3 a, surface s) {
+    return intersectionpoints(a.line_extended,s);
+}
+
+
+bool is_intersecting(line3 a, surface s) {
+    triple[] u = intersectionpoints(a, s);
+    return u.length > 0;
+}
+
+triple intersectionpoint(line3 a, plane3 s) {
+    //return intersectionpoints(a.line_extended,s);
+    if (a.A @ s) {return a.A}
+    
+    matrix A = solve();...
+}
+
+
+bool is_intersecting(line3 a, plane3 s) {
+    triple u = intersectionpoint(a, s);
+    return u != nullpath3 ;
+}
+
+
+
+bool operator @(triple P, line3 a) {
+	return collinear3(a.A,a.B,P);
+}
+
 
 line3 invertpoint(pair A, projection P=currentprojection) {
-    triple vec = P.camera;
+    vector3 vec = vector3(P.camera);
     
     triple[] basis = get_basis(P);
     triple Xp = basis[0];
@@ -243,17 +319,20 @@ line3 invertpoint(pair A, projection P=currentprojection) {
 } //get a line from pair
 
 
-triple intersectionpoint(line3 a, line3 b) {
-    return intersectionpoint(a.line_extended,b.line_extended);
+
+line3 invertpoint(triple A, projection P=currentprojection) {
+    return line3(A, A+P.camera);
 }
 
 
-triple invert3 (pair A, line3 a) {
-    return intersectionpoint(invertpoint(A),a);
-}
 
 
-void Drawline(picture pic = currentpicture, Label L = "", pair P, bool dirP = true, pair Q, bool dirQ = true,
+
+
+
+
+//stolen from module geometry.asy
+void Drawline(picture pic = currentpicture,Label L = "", line3 a,  pair P, bool dirP = true, pair Q, bool dirQ = true,
                       align align = NoAlign, pen p = currentpen,
                       arrowbar arrow = None,
                       Label legend = "", marker marker = nomarker,
@@ -264,6 +343,7 @@ void Drawline(picture pic = currentpicture, Label L = "", pair P, bool dirP = tr
     direction of Q if 'dirQ = true'.
     If 'dirP = dirQ = true', the behavior is that of the native 'drawline'.
     Add all the other parameters of 'Draw'.*/
+    
   pic.add(new void (frame f, transform t, transform T, pair m, pair M) {
       picture opic;
       // Reduce the bounds by the size of the pen.
@@ -330,6 +410,8 @@ void Drawline(picture pic = currentpicture, Label L = "", pair P, bool dirP = tr
           } else {
             draw(opic, g, p);
           }
+
+    
           marker.markroutine(opic, marker.f, g);
           arrow(opic, g, p, NoMargin);
           add(f, opic.fit());
@@ -338,181 +420,232 @@ void Drawline(picture pic = currentpicture, Label L = "", pair P, bool dirP = tr
 }
 
 
-void draw(picture pic=currentpicture, line3 a, bool dirA=true, 
+void draw(picture pic=currentpicture, line3 a, Label L = "", bool dirA=true, 
             bool dirB=true, bool inf=true, pen p=currentpen) {
     
 
     if (inf) {
-        Drawline(project3(a.A),dirA,project3(a.B),dirB,p);
+        Drawline(pic, L, a, project3(a.A), dirA, project3(a.B), dirB, p);
     }	
     else {
-        draw(a.A--a.B,p);    
+        draw(pic,L,a.line,p);
+        //write();    
     }
 }
-  /*  
-  pic.add(new void (frame f, transform t, transform T, pair m, pair M) {
-      // Reduce the bounds by the size of the pen.
-      m -= min(p); M -= max(p);
+  
 
-      triple P,Q;
-      // Calculate the points and direction vector in the transformed space.
-      t=t*T;
-      pair z=t*project3(a.A);
-      pair v=t*project3(a.B)-z;
-      // Handle horizontal and vertical lines.
-      if(v.x == 0) {
-        if(m.x <= z.x && z.x <= M.x)
-          P = invert3((z.x,m.y), a);
-          Q = invert3((z.x,M.y), a);
-          draw(f,P--Q,p);
-        
-      } else if(v.y == 0) {
-        if(m.y <= z.y && z.y <= M.y)
-          P = invert3((m.x,z.y), a);
-          Q = invert3((M.x,z.y), a);
-          draw(f,P--Q,p);
-      } else {
-        // Calculate the maximum and minimum t values allowed for the
-        // parametric equation z + t*v
-        real mx=(m.x-z.x)/v.x, Mx=(M.x-z.x)/v.x;
-        real my=(m.y-z.y)/v.y, My=(M.y-z.y)/v.y;
-        real tmin=max(v.x > 0 ? mx : Mx, v.y > 0 ? my : My);
-        real tmax=min(v.x > 0 ? Mx : mx, v.y > 0 ? My : my);
-        if(tmin <= tmax)
-          dot(inverse(t)*(z+tmin*v));
-          write(inverse(t)*(z+tmin*v));
-          write("min");
-          write(inverse(t)*(z+tmax*v));
-          write("max");
-          //dot((z+tmin*v));
-          dot((3.86575335008085,-0.0117484232145937));
-          dot((-0.176338164471332,5.38018313243324));
-          dot((-0.0117484232145937,5.16062931569675));
-          //dot(f,z+tmax*v);
-		  //dot(invertpoint(inverse(t)*(z+tmin*v)).A,blue);
-		  //write(invertpoint(z+tmin*v).A);
-		  //dot(f,invertpoint(z+tmax*v).B,blue);
-*/
-/*
-          P = invert3(inverse(t)*(z+tmin*v), a);
-          Q = invert3(inverse(t)*(z+tmin*v), a);
-          draw(f,P--Q,p);
-  */
-/*
-    }
-
-       
-    },true);
-
-}
-*/
-
-    //size(pic,0,0);
-    //picture pic1;
-    //picture pic2;
-    //transform t = inverse(pic.calculateTransform());
-  /*  
-path bbox(picture pic=currentpicture,
-            real xmargin=0, real ymargin=xmargin,
-            pen p=currentpen, filltype filltype=NoFill)
- {
-   frame f=pic.fit(max(pic.xsize-2*xmargin,0),max(pic.ysize-2*ymargin,0));
-   return box(f,xmargin,ymargin,p,filltype,above=false);
-}
-*/
-/*
-	pic.add(new void (frame f, transform t, transform T, pair m, pair M) {
-		picture opic;
-		// Reduce the bounds by the size of the pen.
-		m -= min(p); 
-		M -= max(p);
-		path border = box(m,M);
-
-		path line_2d = project3(a.line_extended);
-        draw((t*T)*border);
-		//pair[] u = intersectionpoints(border,line_2d);
-
-		//dot(opic, u[0]);
-		//dot(opic, u[1]);
-		add(f, opic.fit());
-    });    
-  */ 
-/*
-    if (inf) {
-        pic.add(new void(frame f, transform3 t, picture pic1, projection P) {
-			
-			//picture pic1;
-            frame f1 = bbox(pic);
-            path b = box(f1);
-            draw(f1,b);
-            //path border = box(f1,bbox());//box((min(bbox(pic))-min(p)),(max(bbox(pic))-max(p)));
-            //path border = box(m,M);
-			//draw(border, blue);
-			//draw(pic1,a.line_extended, green);
-			draw(project3(a.line_extended), red);
-			//dot(a.extendA);
-			//draw(a.line,red);
-			//write(a.A);
-			//write(a.B);
-			
-			//pair[] u = intersectionpoints(project3(a.line_extended), bbox());
-
-			//pair P = u[0];
-			//pair Q = u[1];
-			
-			//dot(pic,P);
-			
-			//triple U = intersectionpoint(invertpoint(P),a);
-			//triple V = intersectionpoint(invertpoint(Q),a);
-			
-			//dot(U);
-			//draw(pic1, U--V, p);
-            //add(pic, pic1.fit());
-  */              
-            //add(pic, f1);
-            /*
-
-            write(b); 
-            draw(f1, (-106.897256650345,-106.851187223828)--(106.897256650345,-106.851187223828)--(106.897256650345,113.987345113472)--(-106.897256650345,113.987345113472)--cycle);
-
-            add(pic, f1);
-            write(is3D(f1));
-            draw(box(f1),purple);
-            write(min(inverse(pic.calculateTransform())*f1),max(f1));           
-*/            
-
-            // path border2 = inverse(pic1.calculateTransform())*box((min(bbox(pic))-min(p)),(max(bbox(pic))-max(p)));
-            //draw(border2,orange);   
-    // },true);
-    //} else {
-        //draw(pic1,a.A--a.B);
-    //}
-    //add(pic.fit3());
-    //add(pic, pic1.fit());
-    //add(pic, pic2.fit());
+struct object3 {
+    string type;
+    surface surface;
+    curve curve;
     
-    //draw(project3(a.line_extended));
-//}
+    void operator init(string type,
+                       surface surface, 
+                       curve curve) {
+        this.curve = curve;
+        this.surface = surface;
+        this.type = type;
+    }
+};
+
+object3[] OBJECTS;
+
+
 
 
 struct plane3 {
     real A,B,C,D;
     surface surface;
     surface surface_extended;
-    triple [] inits;
-    path3 contour;        
+    triple[] inits;
+    curve curve;
+    real length;
+    real width;    
+    vector3 normal;    
+    triple center;
+    
 
-    void operator init(triple A, triple B, triple C) {
-        
+    void operator init(triple C, vector3 v, 
+                        real length=50, real width=50) {
+        this.normal = v;        
+        this.center = C;        
         //this.inits = {A,B,C};
+        this.length = length;
+        this.width = width;
+         
+        
+        object3 object = object3("surface",surface,curve);            
+        OBJECTS.push(object);          
+        
     }
 
-    bool in_plane (triple P) {
-        return this.A*P.x + this.B*P.y + this.C*P.z + this.D == 0;
+
+
+    void operator init(triple A, triple B, triple C, 
+                        real length=50, real width=50, real angle=0) { //angle in degrees, if angle = 0 it means that one side of plane
+                                                                      // is parallel to axis oX
+        this.normal = vector3(cross(A-B,A-C));        
+        this.center = intersectionpoint((A--midpoint3(B,C)),
+                                        (B--midpoint3(A,C)));       
+        
+        this.inits.push(A);
+        this.inits.push(B);
+        this.inits.push(C);
+
+        this.length = length;
+        this.width = width;
+        
+
+
+
+        object3 object = object3("surface",surface,curve);            
+        OBJECTS.push(object);          
+            
+    }
+    
+    
+
+
+    void operator init(line3 a, triple A) {
+        if (A @ a) abort("point lies on the line, can't create plane,
+                          passing through them");
+        this.operator init(A, a.A, a.B);       
     }
 
 
 }
+
+
+plane3 perpendicular(triple A, line3 a, 
+					 real length=50, real width=50) {
+    return plane3(A,a.vec,length,width); 
+}
+
+
+
+
+//A*x + B*y + C*z + D = 0
+triple getpointXY(real x, real y, plane3 a) {
+    real z;
+    if (a.C == 0) {z = 0;}
+    else {z = (a.A*x + a.B*y + a.D)/a.C;}
+    
+    return (x,y,z);
+}
+
+triple getpointXZ(real x, real z, plane3 a) {
+    real y;
+    if (a.B == 0) {y = 0;}
+    else {y = (a.A*x + a.C*z + a.D)/a.B;}
+    
+    return (x,y,z);
+}
+
+triple getpointYZ(real y, real z, plane3 a) {
+    real x;
+    if (a.A == 0) {x = 0;}
+    else {x = (a.B*y + a.C*z + a.D)/a.A;}
+    
+    return (x,y,z);
+}
+
+
+bool operator @(triple Q, plane3 a) { //, bool inf=true) {
+    if (inf) {
+        return a.A*Q.x + a.B*Q.y + a.C*Q.z + a.D == 0;
+    }
+	
+    //return a.A*Q.x + a.B*Q.y + a.C*Q.z + a.D == 0 && 
+    //       is_intersecting(invertpoint(Q), a);
+}
+
+
+
+bool is_skew(line3 a, line3 b) {
+    return !(b.A @ plane3(a, b.B));
+}
+
+bool is_parallel(line3 a, line3 b) {
+    if (is_skew(a,b)) {return false;}
+
+    return b.A @ parallel(a, b.B);
+}
+
+bool is_intersecting(line3 a, line3 b) {
+    return !(is_skew(a,b)) && !(is_parallel(a,b));
+}
+
+triple intersectionpoint(line3 a, line3 b) {
+    if (is_intersecting(a,b)) {
+        return intersectionpoint(a.line_extended,b.line_extended);
+    }
+    abort("lines do not intersect");
+    return nullpath3;
+}
+
+triple invert3 (pair A, line3 a) {
+    return intersectionpoint(invertpoint(A),a);
+}
+
+triple intersectionpoint(line3 a, plane3 s, bool inf=true) {
+    if (inf) {
+        return intersectionpoints(a, s.surface_extended)[0];
+    }
+    
+    return intersectionpoints(a,s.surface)[0];
+}
+
+
+triple getpointX(real x, line3 a) {
+    if (a.vec.x == 0) { 
+        abort("Line is parallel to the plane ZY, 
+                so relust point can't be unique"); // handle special case
+    }
+    plane3 planeZYp = plane3((x,0,0),
+                             (x,1,0),
+                             (x,0,1)); //plane, which is parallel to planeZY and intersecting axis oX at x
+    
+    return intersectionpoint(a, planeZYp);
+        
+    
+}
+
+triple getpointX(real y, line3 a) {
+    if (a.vec.y == 0) { 
+        abort("Line is parallel to the plane XZ, 
+                so relust point can't be unique"); // handle special case
+    }
+    
+    plane3 planeXZp = plane3((0,y,1),
+                             (1,y,0),
+                             (0,y,1)); //plane, which is parallel to planeXZ and intersecting axis oY at y
+    
+    return intersectionpoint(a, planeXZp);
+        
+    
+}
+
+
+triple getpointZ(real z, line3 a) {
+    if (a.vec.z == 0) { 
+        abort("Line is parallel to the plane XY, 
+                so relust point can't be unique"); // handle special case
+    }
+    
+    plane3 planeXYp = plane3((1,0,z),
+                             (0,1,z),
+                             (0,0,z)); //plane, which is parallel to planeXY and intersecting axis oZ at z
+    
+    return intersectionpoint(a, planeXYp);
+        
+    
+}
+
+
+
+
+
+
 
 
 
@@ -558,15 +691,13 @@ void markrightangle3(triple A, triple B, triple C, real n=5, pen p=currentpen) {
 
 
 
-triple midpoint3(triple A, triple B) {
-    return (A+B)/2;
-}
 
 
-triple foot(triple T, triple A, triple B, triple C) {
+/*
+triple foot3(triple T, triple A, triple B, triple C) {
     return midpoint3(T, reflect(A,B,C)*T);
 }
-
+*/
 
 /*
 triple selectpoint3(triple A, triple B, ) {
@@ -575,7 +706,7 @@ triple selectpoint3(triple A, triple B, ) {
 */
 
 
-triple foot(triple A, plane3 a) {
+triple foot3(triple A, plane3 a) {
     triple[] inits = a.inits;
     return midpoint3(A, reflect(inits[0], inits[1], inits[2])*A);
 }
@@ -586,17 +717,17 @@ triple foot(triple A, triple P, triple Q) {
     line3.line_extended 
 }
 */
-/*
-triple foot(triple A, line3 l) {
-    triple P = l.inits[0];
-    triple Q = l.inits[1];
+
+triple foot3(triple A, line3 l) {
+    triple P = l.A;
+    triple Q = l.B;
     
     real d = abs(cross(unit(P-Q), unit(A-P))*length3(A, P));
     
     return intersectionpoint(l.line_extended, 
                              Circle(A, d, normal(A--P--Q))); 
 }
-*/
+
 
 
 transform3 orthogonalproject(plane3 p) {

@@ -1,0 +1,164 @@
+This is LuaTeX, Version beta-0.80.0 (TeX Live 2015/Debian) (rev 5238)  (format=lualatex 2019.3.30)  1 AUG 2020 00:46
+ restricted \write18 enabled.
+**doc.tex
+(./doc.tex
+LaTeX2e <2016/02/01>
+Babel <3.9q> and hyphenation patterns for 1 language(s) loaded.
+(/usr/share/texlive/texmf-dist/tex/latex/extsizes/extarticle.cls
+Document Class: extarticle 1996/10/08 v1.0 Non Standard LaTeX document class
+(/usr/share/texlive/texmf-dist/tex/latex/base/size12.clo
+File: size12.clo 2014/09/29 v1.4h Standard LaTeX file (size option)
+)
+(/usr/share/texlive/texmf-dist/tex/latex/base/exscale.sty
+Package: exscale 2014/09/29 v2.1h Standard LaTeX package exscale
+LaTeX Font Info:    Redeclaring symbol font `largesymbols' on input line 57.
+LaTeX Font Info:    Overwriting symbol font `largesymbols' in version `normal'
+(Font)                  OMX/cmex/m/n --> OMX/cmex/m/n on input line 57.
+LaTeX Font Info:    Overwriting symbol font `largesymbols' in version `bold'
+(Font)                  OMX/cmex/m/n --> OMX/cmex/m/n on input line 57.
+\big@size=\dimen102
+)
+\c@part=\count79
+\c@section=\count80
+\c@subsection=\count81
+\c@subsubsection=\count82
+\c@paragraph=\count83
+\c@subparagraph=\count84
+\c@figure=\count85
+\c@table=\count86
+\abovecaptionskip=\skip41
+\belowcaptionskip=\skip42
+\bibindent=\dimen103
+)
+(/usr/share/texlive/texmf-dist/tex/latex/amscls/amsthm.sty
+Package: amsthm 2015/03/04 v2.20.2
+\thm@style=\toks14
+\thm@bodyfont=\toks15
+\thm@headfont=\toks16
+\thm@notefont=\toks17
+\thm@headpunct=\toks18
+\thm@preskip=\skip43
+\thm@postskip=\skip44
+\thm@headsep=\skip45
+\dth@everypar=\toks19
+)
+(/usr/share/texlive/texmf-dist/tex/latex/thmtools/thmtools.sty
+Package: thmtools 2014/04/21 v66
+\thmt@toks=\toks20
+\c@thmt@dummyctr=\count87
+
+(/usr/share/texlive/texmf-dist/tex/latex/thmtools/thm-patch.sty
+Package: thm-patch 2014/04/21 v66
+
+(/usr/share/texlive/texmf-dist/tex/latex/thmtools/parseargs.sty
+Package: parseargs 2014/04/21 v66
+\@parsespec=\toks21
+))
+(/usr/share/texlive/texmf-dist/tex/latex/thmtools/thm-kv.sty
+Package: thm-kv 2014/04/21 v66
+Package thm-kv Info: Theorem names will be uppercased on input line 40.
+
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/keyval.sty
+Package: keyval 2014/10/28 v1.15 key=value parser (DPC)
+\KV@toks@=\toks22
+)
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/kvsetkeys.sty
+Package: kvsetkeys 2012/04/25 v1.16 Key value parser (HO)
+
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/infwarerr.sty
+Package: infwarerr 2010/04/08 v1.3 Providing info/warning/error messages (HO)
+)
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/etexcmds.sty
+Package: etexcmds 2011/02/16 v1.5 Avoid name clashes with e-TeX commands (HO)
+
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/ifluatex.sty
+Package: ifluatex 2010/03/01 v1.3 Provides the ifluatex switch (HO)
+Package ifluatex Info: LuaTeX detected.
+)))
+Package thm-kv Info: kvsetkeys patch (v1.16 or later) on input line 156.
+)
+(/usr/share/texlive/texmf-dist/tex/latex/thmtools/thm-autoref.sty
+Package: thm-autoref 2014/04/21 v66
+
+(/usr/share/texlive/texmf-dist/tex/latex/thmtools/aliasctr.sty
+Package: aliasctr 2014/04/21 v66
+
+(/usr/share/texlive/texmf-dist/tex/latex/carlisle/remreset.sty)))
+(/usr/share/texlive/texmf-dist/tex/latex/thmtools/thm-listof.sty
+Package: thm-listof 2014/04/21 v66
+)
+(/usr/share/texlive/texmf-dist/tex/latex/thmtools/thm-restate.sty
+Package: thm-restate 2014/04/21 v66
+)
+(/usr/share/texlive/texmf-dist/tex/latex/thmtools/thm-amsthm.sty
+Package: thm-amsthm 2014/04/21 v66
+\thmt@style@headstyle=\toks23
+))
+(/usr/share/texlive/texmf-dist/tex/latex/base/fontenc.sty
+Package: fontenc 2005/09/27 v1.99g Standard LaTeX package
+
+(/usr/share/texlive/texmf-dist/tex/latex/base/t1enc.def
+File: t1enc.def 2005/09/27 v1.99g Standard LaTeX file
+LaTeX Font Info:    Redeclaring font encoding T1 on input line 48.
+)) (./doc.aux)
+\openout1 = doc.aux
+
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 28.
+LaTeX Font Info:    ... okay on input line 28.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 28.
+LaTeX Font Info:    ... okay on input line 28.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 28.
+LaTeX Font Info:    ... okay on input line 28.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 28.
+LaTeX Font Info:    ... okay on input line 28.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 28.
+LaTeX Font Info:    ... okay on input line 28.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 28.
+LaTeX Font Info:    ... okay on input line 28.
+
+(./doc.toc
+LaTeX Font Info:    External font `cmex7' loaded for size
+(Font)              <6> on input line 2.
+)
+\tf@toc=\write3
+
+\openout3 = doc.toc
+ [1
+
+{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}]
+Underfull \hbox (badness 10000) in paragraph at lines 35--36
+
+ []
+
+LaTeX Font Info:    Try loading font information for T1+qcs on input line 36.
+(/usr/share/texmf/tex/latex/tex-gyre/t1qcs.fd
+File: t1qcs.fd 2009/09/25 v1.2 font definition file for T1/qcs
+)
+Underfull \hbox (badness 10000) in paragraph at lines 49--56
+
+ []
+
+[2] (./doc.aux))
+
+Here is how much of LuaTeX's memory you used:
+ 1242 strings out of 495004
+ 100000,89155 words of node,token memory allocated
+ 274 words of node memory still in use:
+   2 hlist, 1 vlist, 1 rule, 2 glue, 1 glyph, 41 glue_spec, 1 write nodes
+   avail lists: 1:1,2:14,3:43,4:270,5:57,6:722,7:7,9:34,10:58
+ 4732 multiletter control sequences out of 65536+600000
+ 34 fonts using 1347899 bytes
+ 38i,5n,21p,186b,158s stack positions out of 5000i,500n,10000p,200000b,100000s
+{/usr/share/texmf/fonts/enc/dvips/cm-super/cm-super-t1.enc}{/usr/share/texmf/fon
+ts/enc/dvips/tex-gyre/q-ec.enc}<</usr/share/texmf/fonts/type1/public/tex-gyre/qc
+sr.pfb><</usr/share/texmf/fonts/type1/public/cm-super/sfbx1200.pfb><</usr/share/
+texmf/fonts/type1/public/cm-super/sfbx1440.pfb><</usr/share/texmf/fonts/type1/pu
+blic/cm-super/sfbx1728.pfb><</usr/share/texmf/fonts/type1/public/cm-super/sfrm12
+00.pfb><</usr/share/texmf/fonts/type1/public/cm-super/sfti1200.pfb>
+Output written on doc.pdf (2 pages, 105036 bytes).
+
+PDF statistics: 37 PDF objects out of 1000 (max. 8388607)
+ 26 compressed objects within 1 object stream
+ 0 named destinations out of 1000 (max. 131072)
+ 1 words of extra memory for PDF output out of 10000 (max. 10000000)
+
