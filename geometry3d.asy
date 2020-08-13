@@ -8,8 +8,240 @@ filltype dotfilltype = Fill;
 
 
 
+struct basis3 {
+    triple x,y,z;
 
-real length3(triple A, triple B=O) {
+    void operator init(triple x,triple y,triple z) {
+        this.x = unit(x);
+        this.y = unit(y);
+        this.z = unit(z);
+    }
+}
+
+
+struct vector3 {
+    real x,y,z;
+    
+    void operator init(triple V) {
+        this.x = V.x;
+        this.y = V.y;
+        this.z = V.z;
+    }   
+    
+    void operator init(triple A, triple B) {
+        this.operator init(B-A);
+    }   
+
+}
+
+
+triple operator ecast(vector3 v) {
+    return (v.x,v.y,v.z);
+}
+
+vector3 operator *(vector3 v, real k) {
+    return vector3((k*v.x, k*v.y,k*v.z));
+}
+
+triple operator +(triple A, vector3 v) {
+    return A + (triple) v;
+}
+
+triple operator -(triple A, vector3 v) {
+    return A - (triple) v;
+}
+
+vector3 cross(vector3 v, vector3 u) {
+    return vector3(cross((triple) v, (triple) u));
+}
+
+vector3 dot(vector3 v, vector3 u) {
+    return dot((triple) v, (triple) u);
+}
+
+real length3(vector3 v) {
+    return (v.x)^2 + (v.y)^2 + (v.z)^2;
+}
+
+bool collinear3(vector3 v, vector3 u) {
+    return length3(cross(v,u)) == 0;
+}
+
+
+
+struct curve3 {
+    path[] front;
+    path[] back;
+}
+
+
+struct object3 {
+    string type;
+    surface surface;
+    curve3 curve;
+    bool drawn;
+
+    void operator init(string type,
+                       surface surface, 
+                       curve3 curve) {
+        this.curve = curve;
+        this.surface = surface;
+        this.type = type;
+    }
+};
+
+
+object3[] OBJECTS;
+
+
+struct ray3 {
+    vector3 vec;
+    triple A;
+    curve3 curve;
+    path3 ray;  
+
+    void operator init(triple A, vector3 v, real k=1000) {
+        this.vec = v;
+        this.A = A;
+        this.ray = A--(A+v*k);
+    }
+
+
+    void operator init(triple A, triple B) {
+        this.operator init(A, vector3(A,B));
+    }
+
+}
+
+
+struct segment3 {}
+
+
+struct line3 {
+
+	triple A,B;
+    triple extendA, extendB;
+	path3 line;
+	path3 line_extended;
+    vector3 vec;
+	curve3 curve;   
+
+    void operator init(triple A, triple B, real k=1000) {
+        this.vec = vector3(A,B); //vector AB
+        this.A = A;
+        this.B = B;
+        this.extendB = B + vec * k;
+        this.extendA = A - vec * k;
+        this.line_extended = extendA--extendB;    
+        this.line = A--B;
+    }
+    
+    void operator init(vector3 v, triple A) {
+        this.operator init(A, A+v);
+    } 
+   
+    //replace with operator
+    /*
+    line3 xline3 (real x) {
+        line3 l;    
+
+        return l;
+    }
+    */
+
+}
+
+
+
+
+struct plane3 {
+    real A,B,C,D;
+    surface surface;
+    surface surface_extended;
+    triple[] inits;
+    curve3 curve;
+    real length;
+    real width;    
+    vector3 normal;    
+    triple center;
+    path3 contour;
+
+    void operator init(triple C, vector3 normal, 
+                        real length=50, real width=50, real angle=0) {
+        this.normal = normal;        
+        this.center = C;        
+        //this.inits = {A,B,C};
+        this.length = length;
+        this.width = width;
+        
+        vector3 camera = vector3(currentprojection.camera);
+    
+        if (collinear3(camera, normal)) {}
+        else {}
+ 
+        vector3 oX = unit(cross(camera,normal)) * width/2;
+        vector3 oY = unit(cross(oX, normal)) * length/2;
+        
+        path3 contour = (C+oX+oY)--(C+oX-oY)--(C-oX-oY)--(C-oX+oY)--cycle;
+        contour = rotate(angle, normal) * contour;
+     
+        this.contour = contour;
+        //rotate by the angle "angle" about v
+
+        curve.front = project3(contour);
+        
+        
+        
+    }
+
+
+
+    void operator init(triple A, triple B, triple C, 
+                        real length=50, real width=50, real angle=0) { //angle in degrees, if angle = 0 it means that one side of plane
+                                                                      // is parallel to axis oX
+        this.normal = vector3(cross(A-B,A-C));        
+        this.center = intersectionpoint((A--midpoint3(B,C)),
+                                        (B--midpoint3(A,C)));       
+        
+        this.inits.push(A);
+        this.inits.push(B);
+        this.inits.push(C);
+
+        this.length = length;
+        this.width = width;
+        
+
+
+
+        object3 object = object3("surface",surface,curve);            
+        OBJECTS.push(object);          
+            
+    }
+    
+    
+
+
+    void operator init(line3 a, triple A) {
+        if (A @ a) abort("point lies on the line, can't create plane,
+                          passing through them");
+        this.operator init(A, a.A, a.B);       
+    }
+
+
+}
+
+
+struct plane_line {}
+
+
+
+
+//-----------------------------------------------------------------------
+//functions
+
+
+
+real distance3(triple A, triple B) {
     return sqrt((A.x - B.x)^2 + (A.y - B.y)^2 + (A.z - B.z)^2);
 }
 
@@ -18,39 +250,64 @@ triple midpoint3(triple A, triple B) {
 }
 
 
-triple[] get_basis(projection P = currentprojection) {
-	triple Zp = unit(P.camera);
-    triple Xp = unit(cross(Z, Zp));
-    triple Yp = unit(cross(Zp, Xp));
-    triple[] basis = {Xp, Yp, Zp};
+basis3 get_basis(projection P = currentprojection) {
+    triple Zp = P.camera;
+    triple Xp = cross(P.up, Zp);
+    triple Yp = cross(Zp, Xp);
     
-    return basis;
+    return basis3(Xp,Yp,Zp);
 }
 
+
+triple calc_coords_in_basis(basis3 basis, triple A) {
+    triple Xp = basis.x;
+    triple Yp = basis.y;
+    triple Zp = basis.z;
+    
+    triple Ap = (Xp.x*A.x + Yp.x*A.y + Zp.x*A.z,
+                 Xp.y*A.x + Yp.y*A.y + Zp.y*A.z,
+                 Xp.z*A.x + Yp.z*A.y + Zp.z*A.z);
+    return Ap;
+
+}
+
+
+triple change_basis(basis3 basis1, basis3 basis2, triple A) {
+    triple X2 = basis2.x;
+    triple Y2 = basis2.y;
+    triple Z2 = basis2.z;
+    
+    triple Xp = calc_coords_in_basis(basis1, X2);
+    triple Yp = calc_coords_in_basis(basis1, Y2);
+    triple Zp = calc_coords_in_basis(basis1, Z2);
+
+    real[][] transform_matrix =  {{Xp.x, Yp.x, Zp.x},
+                                  {Xp.y, Yp.y, Zp.y},
+                                  {Xp.z, Yp.z, Zp.z}
+                                 };
+    
+    real[] A_matrix = {A.x, A.y, A.z};
+    
+    real[] Ap = solve(transform_matrix, A_matrix);
+
+    return (Ap[0],Ap[1],Ap[2]);
+    
+}
 
 
 //pair project3(triple A, projection P = currentprojection) {
 pair project3(triple A) {
-    projection P = currentprojection;
-    triple[] basis = get_basis(P);
-    triple Xp = basis[0];
-    triple Yp = basis[1];
-    triple Zp = basis[2];
-
-    real[][] transform_matrix = {{Xp.x, Yp.x, Zp.x},
-                                 {Xp.y, Yp.y, Zp.y},
-                                 {Xp.z, Yp.z, Zp.z}
-                                };
-    real[] A_matrix = {A.x, A.y, A.z};
-    
-    real[] Ap = solve(transform_matrix, A_matrix);
-    
-    return (Ap[0], Ap[1]);    
+    //projection P = currentprojection;
+    //triple Ap = change_basis(basis3(X,Y,Z),get_basis(P),A);    
+    //return (Ap.x, Ap.y);
+    return project(A);
 } 
 
 path project3(path3 p) {
     return path(p, project3);
 }
+
+
 
 //copied from https://tex.stackexchange.com/questions/321674/how-to-make-empty-point-in-asymptote which is copied from three_surface.asy
 void opendot(picture pic=currentpicture, triple v, material p=currentpen,
@@ -178,82 +435,17 @@ path3 circle3(triple A, triple B, triple C) {
 
 
 bool collinear3(triple A, triple B, triple C) {
-    return dot(C-A,C-B) == 0;
+    return collinear3(vector3(A,B), vector3(A,C));
 }
 
 
 path3 Circle(triple C, triple A, triple normal=Z){
-    return Circle(C,length3(C,A),normal);
-}
-
-
-struct vector3 {
-    real x,y,z;
-    
-    void operator init(triple V) {
-        this.x = V.x;
-        this.y = V.y;
-        this.z = V.z;
-    }   
-    
-    void operator init(triple A, triple B) {
-        this.operator init(B-A);
-    }   
-
-}
-
-vector3 operator *(vector3 v, real k) {
-    return vector3((k*v.x, k*v.y,k*v.z));
-}
-
-triple operator +(triple A, vector3 v) {
-    return A + (v.x,v.y,v.z);
-}
-
-triple operator -(triple A, vector3 v) {
-    return A - (v.x,v.y,v.z);
-}
-
-struct curve {
-    path[] front;
-    path[] back;
+    return Circle(C,distance3(C,A),normal);
 }
 
 
 
-struct line3 {
 
-	triple A,B;
-    triple extendA, extendB;
-	path3 line;
-	path3 line_extended;
-    vector3 vec;
-	curve curve;   
-
-    void operator init(triple A, triple B, real k=1000) {
-        this.vec = vector3(A,B); //vector AB
-        this.A = A;
-        this.B = B;
-        this.extendB = B + vec * k;
-        this.extendA = A - vec * k;
-        this.line_extended = extendA--extendB;    
-        this.line = A--B;
-    }
-    
-    void operator init(vector3 v, triple A) {
-        this.operator init(A, A+v);
-    } 
-   
-    //replace with operator
-    /*
-    line3 xline3 (real x) {
-        line3 l;    
-
-        return l;
-    }
-    */
-
-}
 
 line3 parallel(line3 a, triple A) {
     return line3(a.vec, A);
@@ -271,13 +463,14 @@ bool is_intersecting(line3 a, surface s) {
     return u.length > 0;
 }
 
+/*
 triple intersectionpoint(line3 a, plane3 s) {
     //return intersectionpoints(a.line_extended,s);
     if (a.A @ s) {return a.A}
     
-    matrix A = solve();...
+    //matrix A = solve();...
 }
-
+*/
 
 bool is_intersecting(line3 a, plane3 s) {
     triple u = intersectionpoint(a, s);
@@ -434,86 +627,6 @@ void draw(picture pic=currentpicture, line3 a, Label L = "", bool dirA=true,
 }
   
 
-struct object3 {
-    string type;
-    surface surface;
-    curve curve;
-    
-    void operator init(string type,
-                       surface surface, 
-                       curve curve) {
-        this.curve = curve;
-        this.surface = surface;
-        this.type = type;
-    }
-};
-
-object3[] OBJECTS;
-
-
-
-
-struct plane3 {
-    real A,B,C,D;
-    surface surface;
-    surface surface_extended;
-    triple[] inits;
-    curve curve;
-    real length;
-    real width;    
-    vector3 normal;    
-    triple center;
-    
-
-    void operator init(triple C, vector3 v, 
-                        real length=50, real width=50) {
-        this.normal = v;        
-        this.center = C;        
-        //this.inits = {A,B,C};
-        this.length = length;
-        this.width = width;
-         
-        
-        object3 object = object3("surface",surface,curve);            
-        OBJECTS.push(object);          
-        
-    }
-
-
-
-    void operator init(triple A, triple B, triple C, 
-                        real length=50, real width=50, real angle=0) { //angle in degrees, if angle = 0 it means that one side of plane
-                                                                      // is parallel to axis oX
-        this.normal = vector3(cross(A-B,A-C));        
-        this.center = intersectionpoint((A--midpoint3(B,C)),
-                                        (B--midpoint3(A,C)));       
-        
-        this.inits.push(A);
-        this.inits.push(B);
-        this.inits.push(C);
-
-        this.length = length;
-        this.width = width;
-        
-
-
-
-        object3 object = object3("surface",surface,curve);            
-        OBJECTS.push(object);          
-            
-    }
-    
-    
-
-
-    void operator init(line3 a, triple A) {
-        if (A @ a) abort("point lies on the line, can't create plane,
-                          passing through them");
-        this.operator init(A, a.A, a.B);       
-    }
-
-
-}
 
 
 plane3 perpendicular(triple A, line3 a, 
@@ -566,9 +679,7 @@ bool is_skew(line3 a, line3 b) {
 }
 
 bool is_parallel(line3 a, line3 b) {
-    if (is_skew(a,b)) {return false;}
-
-    return b.A @ parallel(a, b.B);
+    return collinear3(a.vec, b.vec);
 }
 
 bool is_intersecting(line3 a, line3 b) {
@@ -576,11 +687,11 @@ bool is_intersecting(line3 a, line3 b) {
 }
 
 triple intersectionpoint(line3 a, line3 b) {
-    if (is_intersecting(a,b)) {
-        return intersectionpoint(a.line_extended,b.line_extended);
+    if (!is_intersecting(a,b)) {
+        abort("lines do not intersect");
     }
-    abort("lines do not intersect");
-    return nullpath3;
+    
+    return intersectionpoint(a.line_extended,b.line_extended);
 }
 
 triple invert3 (pair A, line3 a) {
@@ -722,7 +833,7 @@ triple foot3(triple A, line3 l) {
     triple P = l.A;
     triple Q = l.B;
     
-    real d = abs(cross(unit(P-Q), unit(A-P))*length3(A, P));
+    real d = abs(cross(unit(P-Q), unit(A-P))*distance3(A, P));
     
     return intersectionpoint(l.line_extended, 
                              Circle(A, d, normal(A--P--Q))); 
@@ -737,9 +848,12 @@ transform3 orthogonalproject(plane3 p) {
 }
 
 
-path3 incircle3(triple A, triple B, triple C) {return nullpath3;}
+//circle3
+circle3 incircle3(triple A, triple B, triple C) {return nullpath3;}
 
-path3 circle3(triple A, triple B, triple C){return nullpath3;}
+
+//init
+circle3 circle3(triple A, triple B, triple C){return nullpath3;}
 
 /*
 void markangle3{}
@@ -758,19 +872,35 @@ foot of  point ... on plane/line
 */
 
 
-
-void add_2d_frame() {
-    picture pic1;
-	draw(pic1,box(bbox()), invisible);
-
-	add(pic1.fit());
+void drawCurve(picture pic=currentpicture, curve3 curve, 
+                pen frontpen=currentpen, pen backpen=currentpen+dashed) {
+    for (path front : curve.front) {
+        draw(pic, front, frontpen);
+    }
+    
+    for (path back : curve.back) {
+        draw(pic, back, backpen);
+    }
 }
 
 
+void draw3(picture pic=currentpicture, line3 a, Label L = "", 
+            bool dirB=true, bool inf=true, pen p=currentpen){
 
-void with_geometry3d(void main()) {
+        object3 object = object3("surface",surface,curve);            
+        OBJECTS.push(object);          
+}
+
+void withGeometry3d(void main()) {
     main();
-    add_2d_frame();
+    projection P = currentprojection;
+    if (P.camera == P.up) {
+        abort("camera's vector coincides with up-vector");
+    } 
+
+    add2dFrame();
+
+    drawAllObjects();
 }
 
 

@@ -1,3 +1,5 @@
 \contentsline {section}{\numberline {1}Introduction}{2}
 \contentsline {subsection}{\numberline {1.1}Objects types list}{2}
-\contentsline {section}{\numberline {2}The type "line3"}{2}
+\contentsline {section}{\numberline {2}Temp: all functions}{2}
+\contentsline {section}{\numberline {3}The type {\ttfamily \fontseries {m}\selectfont \texttt {line3}} }{3}
+\contentsline {section}{\numberline {4}The type {\ttfamily \fontseries {m}\selectfont \texttt {sphere3}} }{3}

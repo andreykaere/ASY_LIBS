@@ -1,28 +1,58 @@
 \documentclass[12pt]{extarticle}
 
+
+
+
 %\usepackage{tgtermes}
 
 \usepackage{amsthm}
 \usepackage{thmtools}
 \usepackage[T1]{fontenc}
 
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage[margin=0.7in]{geometry}
+\usepackage{caption}
+\usepackage{csquotes}
+\usepackage[export]{adjustbox}
+\usepackage{wrapfig}
+\usepackage{setspace}
+\usepackage{anyfontsize}
+\usepackage{titlesec}
+
+\usepackage{lmodern}
+
+
+\usepackage{tcolorbox}
+
 \newenvironment{codeleft} 
-    {\begin{flushleft}\fontfamily{qcs}\fontsize{11}{11}\selectfont}
+    %{\begin{flushleft}\fontfamily{qcs}\fontsize{11}{11}\selectfont}
+    {\begin{flushleft}\ttfamily \fontseries{m}\selectfont\tt}
     {\end{flushleft}\par\noindent}
 
 \newenvironment{codecenter} 
-    {\begin{center}\fontfamily{put}\selectfont}
+    {\begin{center}\bf}
     {
     \end{center} \\
     }
 
 
-\def\inlinecode#1
-    {{\fontfamily{qcs}\fontsize{11}{11}\selectfont #1}}
+\def\inc#1
+    {{\ttfamily \fontseries{m}\selectfont\texttt{#1}} }
+%    {{\fontfamily{qcs}\fontsize{11}{11}\selectfont #1}}
 
 
-\def\commentcode#1#2
-    {\inlinecode{#1}\\ \qquad #2}
+%\def\commentcode#1#2
+%   {\indent\inc{#1}\indent \qquad \qquad #2}
+
+\newcommand{\commentcode}[2]{
+   \begin{tcolorbox}{\inc{#1}\\ } \newline \vspace{-8.5mm} \newline {\null \qquad \qquad #2} \end{tcolorbox}}
+
+%\newcommand{\q}{\textquote}
+\let\q\textquote
+
+\newcommand{\struct}[1]
+    {{\ttfamily \fontseries{m}\selectfont\texttt{#1}} }
 
 
 \begin{document}
@@ -32,13 +62,17 @@
 
 \section{Introduction}
 
-Before using this package, make sure, that you have this settings:\\
+Before using this package, make sure, that you have this settings:
 \begin{codeleft}
 	settings.outformat = "pdf";\\
 	settings.render = 0;\\
 	settings.prc = false;\\
 \end{codeleft}
-and specified size of picture by \inlinecode{size3}.
+and specified size of picture by \inc{size3}. Also, you have to
+wrap your code into function (say \inc{main}) and put 
+\inc{with\_geometry3d(main);} after \inc{main} 
+function ends.
+%in the very end of your program
 
 \subsection{Objects types list}
 
@@ -47,19 +81,87 @@ The package \textit{geometry3d.asy} is the extension of the module
 to creare a really nice 3D pictures in solid geometry. 
 
 Here is all types, defined in this module\\
-\inlinecode{ray3} -- a 3D ray \\
-\inlinecode{vector3} -- a 3D vector \\
-\inlinecode{line3} -- a 3D line \\
-\inlinecode{plane3} -- a plane \\
-\inlinecode{sphere3} -- a sphere \\
+\inc{basis3} -- a 3D ray \\
+\inc{curve3} -- a 3D ray \\
+\inc{ray3} -- a 3D ray \\
+\inc{vector3} -- a 3D vector \\
+\inc{line3} -- a 3D line \\
+\inc{plane3} -- a plane \\
+\inc{sphere3} -- a sphere \\
 %\textbf{}
 
 
-\section{The type "line3"}
 
-\commentcode{void drawline(picture pic=currentpicture, pair P, pair Q, pen p=currentpen);}{
-draw the visible portion of the (infinite) line going through P and Q, without
-altering the size of picture pic, using pen p.}
+\section{Temp: all functions}
+
+
+\commentcode{void drawAllObjects();}{this function draws all objects on the scene with front-back feature and is called by default in function 
+\inc{with\_geometry3d}. } 
+
+
+\commentcode{void withGeometry3d(void main());}{this function 
+is meant to be ending of your programm, executing essential function for 
+drawing figures properly.}
+
+\commentcode{void add2dFrame();}{add 2D frame in order to be able 
+to draw a 2D figures}
+
+\commentcode{void drawCurve(picture pic=currentpicture, curve3 curve, 
+pen frontpen=currentpen, pen backpen=currentpen+dashed);}{draw 
+\inc{curve} with pens \inc{frontpen} and \inc{backpen} respectively. }
+
+\commentcode{circle3 circle3(triple A, triple B, triple C);}{
+returns circumcircle of triangle \(ABC\).}
+
+\commentcode{circle3 incircle3(triple A, triple B, triple C);}{
+returns incircle of triangle \(ABC\).}
+
+
+\commentcode{transform3 orthogonalproject(plane3 p);}{
+returns \inc{transform3}, which projects in direction of normal to the 
+\inc{plane p}. }
+
+
+\commentcode{triple foot3(triple A, line3 l);}{
+return the foot of the perpendicular dropped from \inc{triple A} onto the 
+\inc{line3 l}. }
+
+\commentcode{triple foot3(triple A, plane3 p);}{
+return the foot of the perpendicular dropped from \inc{triple A} to the 
+\inc{plane3 p}. }
+
+\commentcode{void markrightangle3(triple A, triple B, triple C, real n=5, pen p=currentpen);}{
+marks right angle \(\angle ABC\) with \inc{pen p}, size of \inc{real n}. }
+
+\commentcode{}{}
+\commentcode{}{}
+\commentcode{}{}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\section{The type \struct{line3}}
+
+
+
+\section{The type \struct{sphere3}}
+
+Represent sphere \inc{sphere(C,r);} as a circle \inc{
+Circle(project3(C),r);} from package \inc{graph}.
+%\commentcode{void drawline(picture pic=currentpicture, pair P, pair Q, pen p=currentpen);}{draw the visible portion of the (infinite) line going through P and Q, without
+%altering the size of picture pic, using pen p.}
 
 
 \end{document}
