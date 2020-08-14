@@ -37,16 +37,27 @@
     }
 
 
-\def\inc#1
-    {{\ttfamily \fontseries{m}\selectfont\texttt{#1}} }
+\def\inc#1{{\ttfamily \fontseries{m}\selectfont\texttt{#1}}}
 %    {{\fontfamily{qcs}\fontsize{11}{11}\selectfont #1}}
 
+\newtcolorbox{mybox}[3][]
+{
+  colframe = #2!25,
+  colback  = #2!10,
+  coltitle = #2!20!black,  
+  title    = {#3},
+  #1,
+}
 
 %\def\commentcode#1#2
 %   {\indent\inc{#1}\indent \qquad \qquad #2}
 
-\newcommand{\commentcode}[2]{
-   \begin{tcolorbox}{\inc{#1}\\ } \newline \vspace{-8.5mm} \newline {\null \qquad \qquad #2} \end{tcolorbox}}
+%\newcommand{\commentcode}[2]{
+%   \begin{tcolorbox}{\inc{#1}\\ } \newline \vspace{-8.5mm} \newline {\null \qquad \qquad #2} \end{tcolorbox}}
+
+\def\commentcode[#1]#2#3{
+  \begin{mybox}{#1}{} {\inc{#2}\\ } \newline \vspace{-8.5mm} 
+\newline {\null \qquad \qquad #3} \end{mybox}}
 
 %\newcommand{\q}{\textquote}
 \let\q\textquote
@@ -95,47 +106,98 @@ Here is all types, defined in this module\\
 \section{Temp: all functions}
 
 
-\commentcode{void drawAllObjects();}{this function draws all objects on the scene with front-back feature and is called by default in function 
+\commentcode[green]{void drawAllObjects();}{this function draws all objects on the scene with front-back feature and is called by default in function 
 \inc{with\_geometry3d}. } 
 
 
-\commentcode{void withGeometry3d(void main());}{this function 
+\commentcode[green]{void withGeometry3d(void main());}{this function 
 is meant to be ending of your programm, executing essential function for 
 drawing figures properly.}
 
-\commentcode{void add2dFrame();}{add 2D frame in order to be able 
+\commentcode[green]{void add2dFrame();}{add 2D frame in order to be able 
 to draw a 2D figures}
 
-\commentcode{void drawCurve(picture pic=currentpicture, curve3 curve, 
-pen frontpen=currentpen, pen backpen=currentpen+dashed);}{draw 
-\inc{curve} with pens \inc{frontpen} and \inc{backpen} respectively. }
+\commentcode[green]{void drawCurve(picture pic=currentpicture, 
+curve3 curve, pen frontpen=currentpen, 
+pen backpen=currentpen+dashed);}{draw \inc{curve} with pens 
+\inc{frontpen} and \inc{backpen} respectively. }
 
-\commentcode{circle3 circle3(triple A, triple B, triple C);}{
+\commentcode[red]{circle3 circle3(triple A, triple B, triple C);}{
 returns circumcircle of triangle \(ABC\).}
 
-\commentcode{circle3 incircle3(triple A, triple B, triple C);}{
+\commentcode[red]{circle3 incircle3(triple A, triple B, triple C);}{
 returns incircle of triangle \(ABC\).}
 
 
-\commentcode{transform3 orthogonalproject(plane3 p);}{
+\commentcode[red]{transform3 orthogonalproject(plane3 p);}{
 returns \inc{transform3}, which projects in direction of normal to the 
 \inc{plane p}. }
 
 
-\commentcode{triple foot3(triple A, line3 l);}{
-return the foot of the perpendicular dropped from \inc{triple A} onto the 
-\inc{line3 l}. }
+\commentcode[red]{triple foot3(triple A, line3 l);}{
+return the foot of the perpendicular dropped from point \(A\) onto the 
+line \(l\). }
 
-\commentcode{triple foot3(triple A, plane3 p);}{
-return the foot of the perpendicular dropped from \inc{triple A} to the 
-\inc{plane3 p}. }
+\commentcode[red]{triple foot3(triple A, plane3 p);}{
+return the foot of the perpendicular dropped from point \(A\) to the 
+plane \(p\). }
 
-\commentcode{void markrightangle3(triple A, triple B, triple C, real n=5, pen p=currentpen);}{
+\commentcode[green]{void markrightangle3(triple A, triple B, triple C, real n=5, pen p=currentpen);}{
 marks right angle \(\angle ABC\) with \inc{pen p}, size of \inc{real n}. }
 
-\commentcode{}{}
-\commentcode{}{}
-\commentcode{}{}
+
+\commentcode[green]{real distance3(triple A, triple B);}{
+returns distance between two points \(A\) and \(B\).}
+
+\commentcode[green]{triple midpoint3(triple A, triple B);}{
+returns the midpoint of segment \(AB\).}
+
+\commentcode[green]{basis3 get\_basis(projection P = currentprojection);}{
+returns the basis of the \inc{projection P} formed from vectors 
+\(\vec{x}=\) \inc{P.camera}, \(\vec{y}=\) \(\vec{x} \times \vec{u}\),
+\(\vec{z}=\) \(\vec{x} \times \vec{y}\), where \(\vec{u} =\) 
+\inc{P.up}. }
+
+%\(\vec{x}=\) \inc{P.camera}, \(\vec{y}=\) \inc{cross(P.camera, P.up)},
+% \(\vec{z}=\) \inc{cross(\(\vec{x}, \vec{y}\))}. }
+
+\commentcode[green]{triple calcCoordsInBasis(basis3 basis, triple A);}{
+returns coordinates of point \(A\) (which coordinates are given 
+in standart basis \(\{\vec{x}, \vec{y}, \vec{z}\}\)) in basis \inc{basis}. }
+
+
+\commentcode[green]{triple changeBasis(basis3 basis1, basis3 basis2, 
+triple A);}{
+returns coordinates of point \(A\) (which coordinates are given 
+in basis \inc{basis1}) in basis \inc{basis2}. }
+
+\commentcode[green]{pair project3(triple A);}{
+returns 2D-coordinates \((x',y')\) of \inc{triple A} as if it was drawn
+as a plain point \(A'\) with coordinates \((x',y')\). \\
+\newline
+\texttt{WARNING!} It won't work unless you specified size of image with 
+\inc{size3}. }
+
+\commentcode[green]{path project3(path3 p);}{
+returns 2D-path formed from \inc{project3(node)} for each node of nodes 
+of \inc{path3 p}.
+}
+\commentcode[green]{void markangle3(picture pic = currentpicture,
+               Label L = "", int n = 1, real radius = 0, real space = 0,
+               explicit triple A, explicit triple B, explicit triple C,
+               pair align = dir(1),
+               arrowbar3 arrow3 = None, pen p = currentpen,
+               filltype filltype\_ = NoFill,
+               margin margin = NoMargin, marker marker = nomarker);}{
+marks angle \(\angle ABC\) with \inc{pen p}, filled with 
+\inc{filltype\_}, drawing arrow with \inc{arrow3}.
+}
+%\commentcode[green]{
+
+
+\commentcode[red]{}{}
+\commentcode[red]{}{}
+\commentcode[red]{}{}
 
 
 

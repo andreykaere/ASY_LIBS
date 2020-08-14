@@ -250,7 +250,7 @@ triple midpoint3(triple A, triple B) {
 }
 
 
-basis3 get_basis(projection P = currentprojection) {
+basis3 getBasis(projection P = currentprojection) {
     triple Zp = P.camera;
     triple Xp = cross(P.up, Zp);
     triple Yp = cross(Zp, Xp);
@@ -259,7 +259,7 @@ basis3 get_basis(projection P = currentprojection) {
 }
 
 
-triple calc_coords_in_basis(basis3 basis, triple A) {
+triple calcCoordsInBasis(basis3 basis, triple A) {
     triple Xp = basis.x;
     triple Yp = basis.y;
     triple Zp = basis.z;
@@ -272,14 +272,14 @@ triple calc_coords_in_basis(basis3 basis, triple A) {
 }
 
 
-triple change_basis(basis3 basis1, basis3 basis2, triple A) {
+triple changeBasis(basis3 basis1, basis3 basis2, triple A) {
     triple X2 = basis2.x;
     triple Y2 = basis2.y;
     triple Z2 = basis2.z;
     
-    triple Xp = calc_coords_in_basis(basis1, X2);
-    triple Yp = calc_coords_in_basis(basis1, Y2);
-    triple Zp = calc_coords_in_basis(basis1, Z2);
+    triple Xp = calcCoordsInBasis(basis1, X2);
+    triple Yp = calcCoordsInBasis(basis1, Y2);
+    triple Zp = calcCoordsInBasis(basis1, Z2);
 
     real[][] transform_matrix =  {{Xp.x, Yp.x, Zp.x},
                                   {Xp.y, Yp.y, Zp.y},
@@ -298,7 +298,7 @@ triple change_basis(basis3 basis1, basis3 basis2, triple A) {
 //pair project3(triple A, projection P = currentprojection) {
 pair project3(triple A) {
     //projection P = currentprojection;
-    //triple Ap = change_basis(basis3(X,Y,Z),get_basis(P),A);    
+    //triple Ap = changeBasis(basis3(X,Y,Z),getBasis(P),A);    
     //return (Ap.x, Ap.y);
     return project(A);
 } 
@@ -350,7 +350,7 @@ void markangle3(picture pic = currentpicture,
                explicit triple A, explicit triple B, explicit triple C,
                  pair align = dir(1),
                arrowbar3 arrow3 = None, pen p = currentpen,
-               filltype filltype_ = NoFill,
+               filltype filltype = NoFill,
                margin margin = NoMargin, marker marker = nomarker) {
     path3 w = Circle(B,radius, normal(A--B--C));
     triple P = intersectionpoint(w,B--A); //line3 BA
@@ -358,7 +358,7 @@ void markangle3(picture pic = currentpicture,
     path3 arc = Arc(B,P,Q);
     path3 g = B--P--arc--B--cycle;
     draw(pic, L, arc, p, arrow=arrow3);
-    fill(project3(g), filltype_.fillpen);
+    fill(project3(g), filltype.fillpen);
 }
 /*
 void markangle3(picture pic = currentpicture,
@@ -372,7 +372,7 @@ void markangle3(picture pic = currentpicture,
 /*
 triple invert3(pair A, path3 p) {
     projection P = currentprojection;
-    triple[] basis = get_basis(P);
+    triple[] basis = getBasis(P);
     triple Xp = basis[0];
     triple Yp = basis[1];
     triple Zp = basis[2];
@@ -487,7 +487,7 @@ bool operator @(triple P, line3 a) {
 line3 invertpoint(pair A, projection P=currentprojection) {
     vector3 vec = vector3(P.camera);
     
-    triple[] basis = get_basis(P);
+    triple[] basis = getBasis(P);
     triple Xp = basis[0];
     triple Yp = basis[1];
     triple Zp = basis[2];
