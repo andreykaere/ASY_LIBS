@@ -122,7 +122,7 @@ struct line3 {
 	triple A,B;
     triple extendA, extendB;
 	path3 line;
-	path3 line_extended;
+	path3 lineExtended;
     vector3 vec;
 	curve3 curve;   
 
@@ -132,7 +132,7 @@ struct line3 {
         this.B = B;
         this.extendB = B + vec * k;
         this.extendA = A - vec * k;
-        this.line_extended = extendA--extendB;    
+        this.lineExtended = extendA--extendB;    
         this.line = A--B;
     }
     
@@ -157,7 +157,7 @@ struct line3 {
 struct plane3 {
     real A,B,C,D;
     surface surface;
-    surface surface_extended;
+    surface surfaceExtended;
     triple[] inits;
     curve3 curve;
     real length;
@@ -231,7 +231,7 @@ struct plane3 {
 }
 
 
-struct plane_line {}
+struct planeLine {}
 
 
 
@@ -281,14 +281,14 @@ triple changeBasis(basis3 basis1, basis3 basis2, triple A) {
     triple Yp = calcCoordsInBasis(basis1, Y2);
     triple Zp = calcCoordsInBasis(basis1, Z2);
 
-    real[][] transform_matrix =  {{Xp.x, Yp.x, Zp.x},
+    real[][] transformMatrix =  {{Xp.x, Yp.x, Zp.x},
                                   {Xp.y, Yp.y, Zp.y},
                                   {Xp.z, Yp.z, Zp.z}
                                  };
     
-    real[] A_matrix = {A.x, A.y, A.z};
+    real[] matrixA = {A.x, A.y, A.z};
     
-    real[] Ap = solve(transform_matrix, A_matrix);
+    real[] Ap = solve(transformMatrix, matrixA);
 
     return (Ap[0],Ap[1],Ap[2]);
     
@@ -383,13 +383,13 @@ triple invert3(pair A, path3 p) {
     triple Yp = basis[1];
     triple Zp = basis[2];
 
-    real[][] transform_matrix = {{Xp.x, Yp.x, Zp.x},
+    real[][] transformMatrix = {{Xp.x, Yp.x, Zp.x},
                                  {Xp.y, Yp.y, Zp.y},
                                  {Xp.z, Yp.z, Zp.z}
                                 };
-    real[] A_matrix = {A.x, A.y, 0};
+    real[] matrixA = {A.x, A.y, 0};
     
-    real[] Ap = solve(transform_matrix, A_matrix);
+    real[] Ap = solve(transformMatrix, matrixA);
     
     return (Ap[0], Ap[1]);
 
@@ -460,7 +460,7 @@ line3 parallel(line3 a, triple A) {
 
 
 triple[] intersectionpoints(line3 a, surface s) {
-    return intersectionpoints(a.line_extended,s);
+    return intersectionpoints(a.lineExtended,s);
 }
 
 
@@ -471,7 +471,7 @@ bool isIntersecting(line3 a, surface s) {
 
 /*
 triple intersectionpoint(line3 a, plane3 s) {
-    //return intersectionpoints(a.line_extended,s);
+    //return intersectionpoints(a.lineExtended,s);
     if (a.A @ s) {return a.A}
     
     //matrix A = solve();...
@@ -499,18 +499,18 @@ line3 invertpoint(pair A, projection P=currentprojection) {
     triple Zp = basis[2];
     triple A = (A.x,A.y,1);
     /*
-    real[][] transform_matrix = {{Xp.x, Yp.x, Zp.x},
+    real[][] transformMatrix = {{Xp.x, Yp.x, Zp.x},
                                  {Xp.y, Yp.y, Zp.y},
                                  {Xp.z, Yp.z, Zp.z}
                                 };
     */
-    //real[] A_matrix = {A.x, A.y, 1};
+    //real[] matrixA = {A.x, A.y, 1};
     
     triple Ap = (Xp.x*A.x + Yp.x*A.y + Zp.x*A.z,
                  Xp.y*A.x + Yp.y*A.y + Zp.y*A.z,
                  Xp.z*A.x + Yp.z*A.y + Zp.z*A.z);
     
-    //real[] Ap = solve(transform_matrix, A_matrix);
+    //real[] Ap = solve(transformMatrix, matrixA);
     //triple Ap = (Ap[0],Ap[1],Ap[2]);
     //triple Ap = invert(A, (0,0,1)); //just get one (random) point on the line
     
@@ -675,7 +675,7 @@ bool operator @(triple Q, plane3 a) { //, bool inf=true) {
     }
 	
     //return a.A*Q.x + a.B*Q.y + a.C*Q.z + a.D == 0 && 
-    //       is_intersecting(invertpoint(Q), a);
+    //       isIntersecting(invertpoint(Q), a);
 }
 
 
@@ -689,15 +689,15 @@ bool isParallel(line3 a, line3 b) {
 }
 
 bool isIntersecting(line3 a, line3 b) {
-    return !(is_skew(a,b)) && !(is_parallel(a,b));
+    return !(isSkew(a,b)) && !(isParallel(a,b));
 }
 
 triple intersectionpoint(line3 a, line3 b) {
-    if (!is_intersecting(a,b)) {
+    if (!isIntersecting(a,b)) {
         abort("lines do not intersect");
     }
     
-    return intersectionpoint(a.line_extended,b.line_extended);
+    return intersectionpoint(a.lineExtended,b.lineExtended);
 }
 
 triple invert3(pair A, line3 a) {
@@ -706,7 +706,7 @@ triple invert3(pair A, line3 a) {
 
 triple intersectionpoint(line3 a, plane3 s, bool inf=true) {
     if (inf) {
-        return intersectionpoints(a, s.surface_extended)[0];
+        return intersectionpoints(a, s.surfaceExtended)[0];
     }
     
     return intersectionpoints(a,s.surface)[0];
@@ -831,7 +831,7 @@ triple foot3(triple A, plane3 a) {
 /*
 triple foot(triple A, triple P, triple Q) {
     real d = abs(cross(unit(P-Q)));
-    line3.line_extended 
+    line3.lineExtended 
 }
 */
 
@@ -841,7 +841,7 @@ triple foot3(triple A, line3 l) {
     
     real d = abs(cross(unit(P-Q), unit(A-P))*distance3(A, P));
     
-    return intersectionpoint(l.line_extended, 
+    return intersectionpoint(l.lineExtended, 
                              Circle(A, d, normal(A--P--Q))); 
 }
 
