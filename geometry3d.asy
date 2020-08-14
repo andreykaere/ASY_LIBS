@@ -352,13 +352,19 @@ void markangle3(picture pic = currentpicture,
                arrowbar3 arrow3 = None, pen p = currentpen,
                filltype filltype = NoFill,
                margin margin = NoMargin, marker marker = nomarker) {
-    path3 w = Circle(B,radius, normal(A--B--C));
-    triple P = intersectionpoint(w,B--A); //line3 BA
-    triple Q = intersectionpoint(w,B--C); //line3 BC
-    path3 arc = Arc(B,P,Q);
+    triple normal = cross(A-B,B-C);
+    
+    if (dot(normal, currentprojection.camera) < 0) normal = -normal;
+
+    path3 w = Circle(B,radius, normal=normal); //replace circle3
+    triple P = intersectionpoint(w,B--A); //replace line3 BA
+    triple Q = intersectionpoint(w,B--C); //replace line3 BC
+    
+    path3 arc = arc(B,P,Q,normal=normal);
     path3 g = B--P--arc--B--cycle;
     draw(pic, L, arc, p, arrow=arrow3);
-    fill(project3(g), filltype.fillpen);
+    fill(project(g), filltype.fillpen);
+   
 }
 /*
 void markangle3(picture pic = currentpicture,
@@ -458,7 +464,7 @@ triple[] intersectionpoints(line3 a, surface s) {
 }
 
 
-bool is_intersecting(line3 a, surface s) {
+bool isIntersecting(line3 a, surface s) {
     triple[] u = intersectionpoints(a, s);
     return u.length > 0;
 }
@@ -472,7 +478,7 @@ triple intersectionpoint(line3 a, plane3 s) {
 }
 */
 
-bool is_intersecting(line3 a, plane3 s) {
+bool isIntersecting(line3 a, plane3 s, bool inf=true) {
     triple u = intersectionpoint(a, s);
     return u != nullpath3 ;
 }
@@ -674,15 +680,15 @@ bool operator @(triple Q, plane3 a) { //, bool inf=true) {
 
 
 
-bool is_skew(line3 a, line3 b) {
+bool isSkew(line3 a, line3 b) {
     return !(b.A @ plane3(a, b.B));
 }
 
-bool is_parallel(line3 a, line3 b) {
+bool isParallel(line3 a, line3 b) {
     return collinear3(a.vec, b.vec);
 }
 
-bool is_intersecting(line3 a, line3 b) {
+bool isIntersecting(line3 a, line3 b) {
     return !(is_skew(a,b)) && !(is_parallel(a,b));
 }
 
@@ -694,7 +700,7 @@ triple intersectionpoint(line3 a, line3 b) {
     return intersectionpoint(a.line_extended,b.line_extended);
 }
 
-triple invert3 (pair A, line3 a) {
+triple invert3(pair A, line3 a) {
     return intersectionpoint(invertpoint(A),a);
 }
 

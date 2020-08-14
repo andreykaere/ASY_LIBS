@@ -97,6 +97,8 @@ Here is all types, defined in this module\\
 \inc{ray3} -- a 3D ray \\
 \inc{vector3} -- a 3D vector \\
 \inc{line3} -- a 3D line \\
+\inc{planeLine3} -- a finite line on the given plane \\
+\inc{circle3} -- a 3D circle \\
 \inc{plane3} -- a plane \\
 \inc{sphere3} -- a sphere \\
 %\textbf{}
@@ -195,11 +197,63 @@ marks angle \(\angle ABC\) with \inc{pen p}, filled with
 %\commentcode[green]{
 
 
-\commentcode[red]{}{}
-\commentcode[red]{}{}
-\commentcode[red]{}{}
+\commentcode[red]{bool collinear3(triple A, triple B, triple C);}{
+returns \inc{true} if points \(A,B,C\) are collinear, otherwise 
+it will return \inc{false}.
+}
+\commentcode[blue]{circle3 Circle(triple C, triple A, triple normal=Z);}{
+returns circle with center at \(C\) and normal \inc{normal}, passing 
+through point \(A\).
+}
+
+\commentcode[green]{line3 parallel(line3 a, triple A);}{
+returns line, which is parallel to given line \(a\) and passing through
+point \(A\).
+}
+
+\commentcode[red]{bool isIntersecting(line3 a, plane3 s, bool inf=true);}{
+returns \inc{true} if line \(a\) and plane \(s\) intersect, otherwise --
+\inc{false}. If \inc{inf=false}, then plane \(s\) is not considered 
+infinite.
+}
+
+\commentcode[green]{line3 invertpoint(pair A, projection 
+P=currentprojection);}{
+returns line, which contains point \(A\) and has the vector 
+\inc{P.camera} as its direction vector. This function will 
+be still working if \(A\) has a type \inc{triple}.
+}
 
 
+\commentcode[green]{triple getpointX(real x, line3 a);}{
+For the type \inc{line3} are available functions 
+\inc{getpointX, getpointY, getpointZ}, which calculate the rest of the 
+coordinates of the point on the given line by one given coordinate. }
+    
+\commentcode[green]{triple getpointXY(real x, real y, plane3 a);}{
+For the type \inc{plane3} are defined analogical functions 
+\inc{getpointXY, getpointYZ, getpointXZ}, 
+which calculate the last one of the coordinates of the point on the 
+given plane by two given coordinates. }
+
+\commentcode[green]{bool isIntersecting(line3 a, line3 b);}{
+returns \inc{true} if lines \(a\) and \(b\) intersect.
+}
+
+\commentcode[green]{bool isSkew(line3 a, line3 b);}{
+returns \inc{true} if lines \(a\) and \(b\) are skew.
+}
+
+\commentcode[green]{bool isParallel(line3 a, line3 b);}{
+returns \inc{true} if lines \(a\) and \(b\) are parallel.
+}
+
+
+\commentcode[green]{triple intersectionpoint(line3 a, line3 b);}{
+returns the intersection point of the lines \(a\) and \(b\).
+}
+
+%\commentcode[red]{
 
 
 
