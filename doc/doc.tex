@@ -5,13 +5,15 @@
 
 %\usepackage{tgtermes}
 
+\usepackage{nccmath}
 \usepackage{amsthm}
+\usepackage{amsmath}
+\usepackage{amssymb}
 \usepackage{thmtools}
 \usepackage[T1]{fontenc}
 
 \usepackage{graphicx}
 \usepackage{float}
-\usepackage[margin=0.7in]{geometry}
 \usepackage{caption}
 \usepackage{csquotes}
 \usepackage[export]{adjustbox}
@@ -24,6 +26,12 @@
 
 
 \usepackage{tcolorbox}
+
+
+\let\mathb\mathbb
+\newcommand{\N}{\mathb{N}}
+\newcommand{\Z}{\mathb{Z}}
+\newcommand{\R}{\mathb{R}}
 
 \newenvironment{codeleft} 
     %{\begin{flushleft}\fontfamily{qcs}\fontsize{11}{11}\selectfont}
@@ -217,6 +225,64 @@ returns \inc{true} if line \(a\) and plane \(s\) intersect, otherwise --
 infinite.
 }
 
+\commentcode[red]{triple intersectionpoint(line3 a, plane3 s, 
+bool inf=true);}{
+returns the intersection point of line \(a\) and plane \(s\) if 
+they intersect, otherwise function aborts the program. 
+If \inc{inf=false}, then plane \(s\) is not considered infinite.
+We might use function \inc{intersectionpoint(path3 p, surface s)}, 
+considering line as a very long straight \inc{path3} and plane as 
+a real wide \inc{surface}, but it takes a pretty long time to 
+calculate this. So, we will calculate this by ourselves using algebra.\\
+We define line as \(\langle x,y,z \rangle = \langle x_0,y_0,z_0 
+\rangle + \vec{v} \cdot t, t \in \R\) and plane as \(Ax+By+Cz+D=0\).
+Let \(\vec{v} = \langle x_v,y_v,z_v \rangle \), then we can write 
+a system of linear equations:
+\begin{fleqn}
+\[
+	\begin{cases}
+	x = x_0 + x_v \cdot t\\
+	y = y_0 + y_v \cdot t\\
+	z = z_0 + z_v \cdot t\\
+	Ax+By+Cz+D=0\\
+	\end{cases} \iff
+	\begin{cases}
+	x - x_v \cdot t = x_0\\
+	y - y_v \cdot t = y_0\\
+	z - z_v \cdot t = z_0\\
+	Ax+By+Cz=-D\\
+	\end{cases} \tag{1} \label{1}
+\]
+\end{fleqn}
+The triple \((x,y,z)\) of the solution \((x,y,z,t)\) of that 
+system defines the desired intersection point (we assume, that 
+this point exists and is unique, because otherwise program would 
+stopped a long ago). We can easily rewrite \eqref{1} using marices:
+\[
+\begin{bmatrix}
+1 & 0 & 0 & -x_v\\
+0 & 1 & 0 & -y_v\\
+0 & 0 & 1 & -z_v\\
+A & B & C & 0
+\end{bmatrix}
+\begin{bmatrix}
+x\\
+y\\
+z\\
+t
+\end{bmatrix}=
+\begin{bmatrix}
+x_0\\
+y_0\\
+z_0\\
+-D
+\end{bmatrix}
+\]
+%
+Then we solve this matrix equation (using embedded function) 
+and get the desired result which is the intersection point.
+}
+
 \commentcode[green]{line3 invertpoint(pair A, projection 
 P=currentprojection);}{
 returns line, which contains point \(A\) and has the vector 
@@ -224,6 +290,11 @@ returns line, which contains point \(A\) and has the vector
 be still working if \(A\) has a type \inc{triple}.
 }
 
+\commentcode[green]{triple invert3(pair A, line3 a);}{
+returns \inc{triple} representation of \inc{pair A}, where
+resulting \inc{triple} point lies on the line \(a\).\\
+Basically, it's the inverse of function \inc{project3}.
+}
 
 \commentcode[green]{triple getpointX(real x, line3 a);}{
 For the type \inc{line3} are available functions 

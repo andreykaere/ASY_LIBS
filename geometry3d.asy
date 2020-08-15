@@ -891,11 +891,30 @@ void drawCurve(picture pic=currentpicture, curve3 curve,
 
 
 void draw3(picture pic=currentpicture, line3 a, Label L = "", 
-            bool dirB=true, bool inf=true, pen p=currentpen){
+            bool dirB=true, bool inf=true, pen p=currentpen) {
 
-        object3 object = object3("surface",surface,curve);            
-        OBJECTS.push(object);          
+	object3 object = object3("surface",surface,curve);            
+	OBJECTS.push(object);          
 }
+
+void draw3(picture pic=currentpicture, object3 object) {
+
+}
+
+
+void calculateFrontBack() {
+
+}
+
+void drawAllObjects(picture pic=currentpicture) {
+    
+    calculateFrontBack();
+
+    for (object3 object : OBJECTS) {
+        draw3(pic, object);
+    }
+}
+
 
 void withGeometry3d(void main()) {
     main();
